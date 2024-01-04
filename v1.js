@@ -1,4 +1,14 @@
-/**Handle Merge Anonymous Users */
+/**HANDLE MERGE ANONYMOUS USERS**/
+
+/*Function Notation
+This function passes two alias's, each corresponding to a separate alias only profile within Braze, and merges the two unknown users into a single anonymous user profile.
+This function receives a track event that contains the following four vlaues in the event properties BRAZE_USER_ID_KEY, BRAZE_USER_ID_KEY, REAL_TIME_USER_ID_KEY, REAL_TIME_USER_ID_VALUE
+
+BRAZE_USER_ID_KEY: the braze alias label
+BRAZE_USER_ID_KEY: the braze alias name
+REAL_TIME_USER_ID_KEY: the braze alias label sent in a real time event
+REAL_TIME_USER_ID_VALUE: the braze alias name sent in a real time event
+*/
 async function onTrack(event, settings) {
 	//Initialize Variables
 	const instance_url = 'rest.iad-06.braze.com';
@@ -29,8 +39,8 @@ async function onTrack(event, settings) {
 		// Retry on 5xx (server errors) and 429s (rate limits)
 		throw new RetryError(`Failed with ${response.status}`);
 	}
-		console.log(response.status + ' ' + response.statusText)
-		return response.status;
+	console.log(response.status + ' ' + response.statusText);
+	return response.status;
 }
 
 //UTIL Functions
