@@ -23,12 +23,11 @@ let response;
 
 //Main Function to Handle Track Events
 async function onTrack(event, settings) {
-
-  //Validate and Handle Track Event
+	//Validate and Handle Track Event
 	let validatedEvent;
 	validatedEvent = await validateEvent(event);
 
-  //Build Request Body
+	//Build Request Body
 	let reqBody;
 	reqBody = await buildRequestBody(validatedEvent);
 	console.log(reqBody);
@@ -60,71 +59,78 @@ async function onTrack(event, settings) {
 
 //Handle Event Validation Errors
 class MissingPropertyError extends Error {
-  constructor(propertyPath) {
-    super(`Missing property: ${propertyPath}`);
-    this.name = 'MissingPropertyError';
-  }
+	constructor(propertyPath) {
+		super(`Missing property: ${propertyPath}`);
+		this.name = 'MissingPropertyError';
+	}
 }
 
 //Handle Event Validation
 async function validateEvent(event) {
-  let profile_one_key;
-  let profile_one_value;
-  let profile_two_key;
-  let profile_two_value;
+	let profile_one_key;
+	let profile_one_value;
+	let profile_two_key;
+	let profile_two_value;
 
-  switch (event.event) {
-    case 'merge_anonymous_users':
-      const expectedPropertyPaths1 = [
-        "properties.BRAZE_USER_ID_KEY_1",
-        "properties.BRAZE_USER_ID_VALUE_1",
-        "properties.BRAZE_USER_ID_KEY_2",
-        "properties.BRAZE_USER_ID_VALUE_2"
-      ];
+	switch (event.event) {
+		case 'merge_anonymous_users_with_realtime_users':
+			const expectedPropertyPaths2 = [
+				'properties.BRAZE_USER_ID_KEY',
+				'properties.BRAZE_USER_ID_VALUE',
+				'properties.REAL_TIME_USER_ID_KEY',
+				'properties.REAL_TIME_USER_ID_VALUE'
+			];
 
-      expectedPropertyPaths1.forEach(propertyPath => {
-        if (!checkPropertyPath(event, propertyPath)) {
-          throw new MissingPropertyError(propertyPath);
-        }
-      });
+			expectedPropertyPaths2.forEach(propertyPath => {
+				if (!checkPropertyPath(event, propertyPath)) {
+					throw new MissingPropertyError(propertyPath);
+				}
+			});
 
-      profile_one_key = event.properties.BRAZE_USER_ID_KEY_1;
-      profile_one_value = event.properties.BRAZE_USER_ID_VALUE_1;
-      profile_two_key = event.properties.BRAZE_USER_ID_KEY_2;
-      profile_two_value = event.properties.BRAZE_USER_ID_VALUE_2;
+			profile_one_key = event.properties.BRAZE_USER_ID_KEY;
+			profile_one_value = event.properties.BRAZE_USER_ID_VALUE;
+			profile_two_key = event.properties.REAL_TIME_USER_ID_KEY;
+			profile_two_value = event.properties.REAL_TIME_USER_ID_VALUE;
+			console.log(
+				'Event Criteria Met for Merging Anonymous and Real-time Users'
+			);
+			break;
 
-      console.log('Event Criteria Met for Merging Anonymous Users');
-      break;
+		case 'merge_anonymous_users':
+			const expectedPropertyPaths1 = [
+				'properties.BRAZE_USER_ID_KEY_1',
+				'properties.BRAZE_USER_ID_VALUE_1',
+				'properties.BRAZE_USER_ID_KEY_2',
+				'properties.BRAZE_USER_ID_VALUE_2'
+			];
 
-    case 'merge_anonymous_and_realtime_users':
-      const expectedPropertyPaths2 = [
-        "properties.BRAZE_USER_ID_KEY",
-        "properties.BRAZE_USER_ID_VALUE",
-        "properties.REAL_TIME_USER_ID_KEY",
-        "properties.REAL_TIME_USER_ID_VALUE"
-      ];
+			expectedPropertyPaths1.forEach(propertyPath => {
+				if (!checkPropertyPath(event, propertyPath)) {
+					throw new MissingPropertyError(propertyPath);
+				}
+			});
 
-      expectedPropertyPaths2.forEach(propertyPath => {
-        if (!checkPropertyPath(event, propertyPath)) {
-          throw new MissingPropertyError(propertyPath);
-        }
-      });
+			profile_one_key = event.properties.BRAZE_USER_ID_KEY_1;
+			profile_one_value = event.properties.BRAZE_USER_ID_VALUE_1;
+			profile_two_key = event.properties.BRAZE_USER_ID_KEY_2;
+			profile_two_value = event.properties.BRAZE_USER_ID_VALUE_2;
 
-      profile_one_key = event.properties.BRAZE_USER_ID_KEY;
-      profile_one_value = event.properties.BRAZE_USER_ID_VALUE;
-      profile_two_key = event.properties.REAL_TIME_USER_ID_KEY;
-      profile_two_value = event.properties.REAL_TIME_USER_ID_VALUE;
-      console.log('Event Criteria Met for Merging Anonymous and Real-time Users');
-      break;
+			console.log('Event Criteria Met for Merging Anonymous Users');
+			break;
 
-    default:
-      console.log('Neither of the predefined event cases were met.');
-      throw new EventNotSupported(
-        'Neither of the predefined event cases were met.'
-      );
-      break;
-  }
-  return { profile_one_key, profile_one_value, profile_two_key, profile_two_value };
+		default:
+			console.log('Neither of the predefined event cases were met.');
+			throw new EventNotSupported(
+				'Neither of the predefined event cases were met.'
+			);
+			break;
+	}
+	return {
+		profile_one_key,
+		profile_one_value,
+		profile_two_key,
+		profile_two_value
+	};
 }
 
 //Handle Validation of Each Property
@@ -133,7 +139,12 @@ function checkPropertyPath(obj, propertyPath) {
   let currentObject = obj;
 
   for (const property of properties) {
-    if (currentObject.hasOwnProperty(property)) {
+    if (
+      currentObject &&
+      currentObject.hasOwnProperty(property) &&
+      currentObject[property] !== null &&
+      currentObject[property] !== undefined
+    ) {
       currentObject = currentObject[property];
     } else {
       return false;
@@ -142,6 +153,7 @@ function checkPropertyPath(obj, propertyPath) {
 
   return true;
 }
+
 
 //Build Merge Request Body
 async function buildRequestBody(validatedEvent) {
