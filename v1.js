@@ -47,9 +47,12 @@ async function onTrack(event, settings) {
 		throw new RetryError(error.message);
 	}
 
-	if (response.status >= 500 || response.status === 429) {
+	if (response.status >= 400) {
 		// Retry on 5xx (server errors) and 429s (rate limits)
-		throw new RetryError(`Failed with ${response.status}`);
+		console.error(`HTTP Error: ${response.status} - ${response.statusText}`);
+		throw new RetryError(
+			`Failed with ${response.status} - ${response.statusText}`
+		);
 	}
 	console.log(response.status + ' ' + response.statusText);
 	return response.status;
@@ -83,6 +86,7 @@ async function validateEvent(event) {
 
 			expectedPropertyPaths2.forEach(propertyPath => {
 				if (!checkPropertyPath(event, propertyPath)) {
+          console.error(`Validation error in event: ${JSON.stringify(event)}`);
 					throw new MissingPropertyError(propertyPath);
 				}
 			});
@@ -106,6 +110,7 @@ async function validateEvent(event) {
 
 			expectedPropertyPaths1.forEach(propertyPath => {
 				if (!checkPropertyPath(event, propertyPath)) {
+          console.error(`Validation error in event: ${JSON.stringify(event)}`);
 					throw new MissingPropertyError(propertyPath);
 				}
 			});
@@ -135,25 +140,25 @@ async function validateEvent(event) {
 
 //Handle Validation of Each Property
 function checkPropertyPath(obj, propertyPath) {
-  const properties = propertyPath.split('.');
-  let currentObject = obj;
+	const properties = propertyPath.split('.');
+	let currentObject = obj;
 
-  for (const property of properties) {
-    if (
-      currentObject &&
-      currentObject.hasOwnProperty(property) &&
-      currentObject[property] !== null &&
-      currentObject[property] !== undefined
-    ) {
-      currentObject = currentObject[property];
-    } else {
-      return false;
-    }
-  }
+	for (const property of properties) {
+		if (
+			currentObject &&
+			currentObject.hasOwnProperty(property) &&
+			currentObject[property] !== null &&
+			currentObject[property] !== undefined
+		) {
+			currentObject = currentObject[property];
+		} else {
+      console.error(`Property not found: ${property} in path: ${propertyPath}`);
+			return false;
+		}
+	}
 
-  return true;
+	return true;
 }
-
 
 //Build Merge Request Body
 async function buildRequestBody(validatedEvent) {
