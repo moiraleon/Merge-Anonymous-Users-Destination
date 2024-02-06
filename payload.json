@@ -6,7 +6,7 @@
         "version": "unknown"
       },
       "traits": {
-        "alias_label": "moirabetesting",
+        "alias_label": "mo*****",
         "alias_name": "test_alias"
       }
     },
@@ -16,13 +16,13 @@
     "projectId": "oTqsJCeNZRLL3vPW9ZVqtU",
     "properties": {
       "BRAZE_USER_ID_KEY": "known_user_alias",
-      "BRAZE_USER_ID_VALUE": "4n95gb8",
-      "REAL_TIME_USER_ID_KEY": "real_time_order_completed_id",
-      "REAL_TIME_USER_ID_VALUE": "9nisr94q"
+      "BRAZE_USER_ID_VALUE": "4n95gb8****",
+      "REAL_TIME_USER_ID_KEY": "real_time_alias",
+      "REAL_TIME_USER_ID_VALUE": "9nisr94q****"
     },
     "receivedAt": "2023-12-15T20:43:09.168Z",
     "timestamp": "2023-12-15T20:43:09.168Z",
     "type": "track",
-    "userId": "3e472722-1dd5-46c5-bfdf-a3ac1778b917",
+    "userId": "3e472722*****",
     "version": 2
   }
